@@ -1,12 +1,20 @@
+import json
 import logging
 from asyncio import sleep
 from typing import (Type,
                     Callable,
                     Coroutine,
+                    Dict,
                     Tuple)
 
 from aiohttp import (ClientSession,
                      ClientConnectionError)
+from aiohttp.web_exceptions import HTTPBadRequest
+
+
+def bad_request_json(body: Dict[str, str]) -> HTTPBadRequest:
+    return HTTPBadRequest(body=json.dumps(body),
+                          content_type='application/json')
 
 
 async def check_connection(
