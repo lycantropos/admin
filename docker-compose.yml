@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  collector:
+    build: ./collector
+    image: lycantropos/collector:latest
+    volumes:
+      - ./collector:/opt/collector/
+    environment:
+      - Collector.Name=collector
+      - Collector.Host=collector
+      - Collector.Port=4029
+    command:
+      - run
+    ports:
+      - 4029:4029
+
+  observable:
+    build: ./observable
+    image: lycantropos/observable:latest
+    volumes:
+      - ./observable:/opt/observable/
+    environment:
+      - Observable.Name=observable
+      - Observable.Host=observable
+      - Observable.Port=4092
+    command:
+      - run
+    ports:
+      - 4092:4092
+
+  other-observable:
+    build: ./observable
+    image: lycantropos/observable:latest
+    volumes:
+      - ./observable:/opt/observable/
+    environment:
+      - Observable.Name=other-observable
+      - Observable.Host=other-observable
+      - Observable.Port=4093
+    command:
+      - run
+    ports:
+      - 4093:4093

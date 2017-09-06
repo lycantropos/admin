@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  collector:
+    build: ./collector
+    image: lycantropos/collector:latest
+    volumes:
+      - ./collector:/opt/collector/
+    environment:
+      - Collector.Name=collector
+      - Collector.Host=collector
+      - Collector.Port=4029
+    command:
+      - --verbose
+      - run
+      - 'http://observable:4092/subscribe?directory=.'
+      - 'http://other-observable:4093/subscribe?directory=.'
+    ports:
+      - 4029:4029
+    extra_hosts:
+      - "dockerhost:$DOCKERHOST"  # for debugging
+
+  observable:
+    build: ./observable
+    image: lycantropos/observable:latest
+    volumes:
+      - ./observable:/opt/observable/
+    environment:
+      - Observable.Name=observable
+      - Observable.Host=observable
+      - Observable.Port=4092
+    command:
+      - --verbose
+      - run
+    ports:
+      - 4092:4092
+    extra_hosts:
+      - "dockerhost:$DOCKERHOST"  # for debugging
+
+  other-observable:
+    build: ./observable
+    image: lycantropos/observable:latest
+    volumes:
+      - ./observable:/opt/observable/
+    environment:
+      - Observable.Name=other-observable
+      - Observable.Host=other-observable
+      - Observable.Port=4093
+    command:
+      - --verbose
+      - run
+    ports:
+      - 4093:4093
+    extra_hosts:
+      - "dockerhost:$DOCKERHOST"  # for debugging
