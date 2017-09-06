@@ -5,8 +5,6 @@ import os
 import sys
 from asyncio import (get_event_loop,
                      ensure_future)
-from typing import (Dict,
-                    Set)
 
 import click
 from aiohttp import ClientSession
@@ -14,8 +12,7 @@ from aiohttp.web import run_app
 
 from observable.app import create_app
 from observable.config import PACKAGE_NAME
-from observable.services import (scanner,
-                                 notifier)
+from observable.services import scanner
 
 
 @click.group()
@@ -92,31 +89,17 @@ def run(ctx: click.Context) -> None:
     app = create_app(loop,
                      subscriptions=subscriptions,
                      session=session)
-    ensure_future(scan_and_notify(subscriptions,
-                                  name=name,
-                                  delay=2,
-                                  session=session),
+    ensure_future(scanner.run_periodically(subscriptions,
+                                           delay=2,
+                                           name=name,
+                                           session=session,
+                                           loop=loop),
                   loop=loop)
     run_app(app,
             host=host,
             port=port,
             print=logging.info,
             loop=loop)
-
-
-async def scan_and_notify(subscriptions: Dict[str, Set[str]],
-                          *,
-                          name: str,
-                          delay: int,
-                          session: ClientSession):
-    async for directory_path, diff in scanner.run_periodically(subscriptions,
-                                                               delay=delay):
-        subscribers = subscriptions[directory_path]
-        json_data = {'diff': diff,
-                     'name': name}
-        await notifier.run(subscribers=subscribers,
-                           json_data=json_data,
-                           session=session)
 
 
 if __name__ == '__main__':

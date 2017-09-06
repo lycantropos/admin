@@ -1,4 +1,5 @@
 from typing import (Union,
                     Dict)
 
-DiffType = Dict[str, Dict[str, Union[str, int]]]
+StateDiffType = Dict[str, Union[str, int]]
+StatesDiffType = Dict[str, StateDiffType]
