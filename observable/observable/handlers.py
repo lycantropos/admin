@@ -1,16 +1,17 @@
-import json
 import logging
-from functools import partial
+import os
 from typing import (Dict,
                     Set)
-import os
+
 from aiohttp import ClientSession
-from aiohttp.web_exceptions import HTTPBadRequest
 from aiohttp.web_request import Request
 from aiohttp.web_response import (Response,
                                   json_response)
 
-from observable.utils import check_connection
+from observable.utils import bad_request_json
+from observable.validators import (MAX_FILES_COUNT,
+                                   subscriber_valid,
+                                   directory_valid)
 
 
 async def subscribe(request: Request,
@@ -26,8 +27,7 @@ async def subscribe(request: Request,
                           'query should contain '
                           'both keys "directory", '
                           '"subscriber".'}
-        return HTTPBadRequest(body=json.dumps(body),
-                              content_type='application/json')
+        return bad_request_json(body=body)
 
     subscriber_is_valid = await subscriber_valid(subscriber,
                                                  session=session)
@@ -36,8 +36,17 @@ async def subscribe(request: Request,
                 'reason': 'Invalid subscriber: '
                           'failed to send request '
                           f'at "{subscriber}".'}
-        return HTTPBadRequest(body=json.dumps(body),
-                              content_type='application/json')
+        return bad_request_json(body=body)
+
+    directory_is_valid = directory_valid(directory_path)
+
+    if not directory_is_valid:
+        body = {'status': 'error',
+                'reason': 'Invalid directory path: '
+                          f'"{directory_path}" should be '
+                          f'reachable directory '
+                          f'with less than {MAX_FILES_COUNT:_} files.'}
+        return bad_request_json(body=body)
 
     try:
         subscribers = subscriptions[directory_path]
@@ -47,8 +56,7 @@ async def subscribe(request: Request,
         if subscriber in subscribers:
             body = {'status': 'error',
                     'reason': 'Invalid subscription: already subscribed.'}
-            return HTTPBadRequest(body=json.dumps(body),
-                                  content_type='application/json')
+            return bad_request_json(body=body)
         subscribers.add(subscriber)
 
     logging.info('Successfully added subscription '
@@ -56,16 +64,3 @@ async def subscribe(request: Request,
                  f'for subscriber "{subscriber}".')
 
     return json_response({'status': 'ok'})
-
-
-async def subscriber_valid(subscriber: str,
-                           *,
-                           session: ClientSession) -> bool:
-    try:
-        check_connection(subscriber,
-                         method=partial(ClientSession.post,
-                                        json={}),
-                         session=session)
-        return True
-    except ConnectionError:
-        return False
