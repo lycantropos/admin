@@ -1,5 +1,4 @@
-#`admin`
-
+# admin
 `admin` application consists of next services:
 - `observable`: 
 scans requested directories and notifies subscribers in case of change,
@@ -43,7 +42,7 @@ scans requested directories and notifies subscribers in case of change,
     - `$PORT`: `collector` instance's port (e.g. `4029`),
     
     **body**: `application/json`
-    ```json
+    ```
     {
         "diff": {...,
                  $FILE_PATH: {"size": $FILE_SIZE,
