@@ -18,6 +18,8 @@ services:
       - 'http://other-observable:4093/subscribe?directory=.'
     ports:
       - 4029:4029
+    depends_on:
+      - persistence
     extra_hosts:
       - "dockerhost:$DOCKERHOST"  # for debugging
 
