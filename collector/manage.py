@@ -12,7 +12,8 @@ from typing import (Dict,
 from urllib import parse
 
 import click
-import pymongo
+import pymongo.errors
+import time
 from aiohttp import ClientSession
 from aiohttp.web import run_app
 
@@ -95,6 +96,8 @@ def run(ctx: click.Context,
     db_uri = ctx.obj['db_uri']
     channels = dict(map(split_query_params, urls))
 
+    check_mongo_connection(db_uri)
+
     loop = get_event_loop()
     session = ClientSession(loop=loop)
 
@@ -114,8 +117,8 @@ def run(ctx: click.Context,
     loop.run_until_complete(gather(*tasks))
 
     collection_name = 'collected'
-    session = pymongo.MongoClient(db_uri)
-    database = session.get_database()
+    client = pymongo.MongoClient(db_uri)
+    database = client.get_database()
     collection = database.get_collection(collection_name)
     app = create_app(collection=collection,
                      loop=loop)
@@ -124,6 +127,34 @@ def run(ctx: click.Context,
             port=port,
             print=logging.info,
             loop=loop)
+
+
+def check_mongo_connection(db_uri: str,
+                           *,
+                           retry_attempts: int = 10,
+                           retry_interval: int = 2,
+                           exceptions=(pymongo.errors.PyMongoError,)) -> None:
+    client = pymongo.MongoClient(db_uri)
+    logging.info('Establishing connection '
+                 f'with "{db_uri}".')
+    for attempt_num in range(retry_attempts):
+        try:
+            response = client.db_name.command('ping')
+            if 'ok' not in response:
+                continue
+            break
+        except exceptions:
+            err_msg = ('Connection attempt '
+                       f'#{attempt_num + 1} failed.')
+            logging.error(err_msg)
+            time.sleep(retry_interval)
+    else:
+        err_message = ('Failed to establish connection '
+                       f'with "{db_uri}" '
+                       f'after {retry_attempts} attempts '
+                       f'with {retry_interval} s. interval.')
+        raise ConnectionError(err_message)
+    logging.info(f'Connection established with "{db_uri}".')
 
 
 def split_query_params(url: str) -> Tuple[str, Dict[str, str]]:
