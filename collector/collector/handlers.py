@@ -36,14 +36,24 @@ async def search(request: Request,
                  collection: pymongo.collection.Collection) -> Response:
     query = request.query
 
-    from_date_time, to_date_time = (str_to_datetime(query['dateStart']),
-                                    str_to_datetime(query['dateEnd']))
+    try:
+        source = query['source']
+        from_date_time, to_date_time = (str_to_datetime(query['dateStart']),
+                                        str_to_datetime(query['dateEnd']))
+    except KeyError:
+        body = {'status': 'error',
+                'reason': 'Invalid query: '
+                          'query should contain '
+                          'both keys "source", '
+                          '"dateStart", "dateEnd".'}
+        return bad_request_json(body=body)
+
     offset = int(query.get('offset', 0))
     try:
         limit = int(query['limit'])
     except KeyError:
         limit = None
-    cursor = find(source=query['source'],
+    cursor = find(source=source,
                   from_date_time=from_date_time,
                   to_date_time=to_date_time,
                   limit=limit,
