@@ -1,5 +1,5 @@
 # admin
-`admin` application consists of next services:
+`admin` application consists of the next services:
 - `observable`: 
 scans requested directories and notifies subscribers in case of change,
 - `collector`: cumulates data from `observable` instances.
@@ -48,7 +48,7 @@ scans requested directories and notifies subscribers in case of change,
                  $FILE_PATH: {"size": $FILE_SIZE,
                               "type": $MODIFICATION_TYPE},
                 ...},
-        "name": $INSTANCE_NAME
+        "source": $INSTANCE_NAME
     }
     ```
     where
@@ -59,6 +59,53 @@ scans requested directories and notifies subscribers in case of change,
     - `$MODIFICATION_TYPE`: file modification type 
     (possible values: `created`, `deleted`, `modified`),
     - `$INSTANCE_NAME`: `observable` instance name.
+
+- `search`
+
+    **`HTTP` method**: `GET`,
+
+    **format**:
+    ```
+    http://$HOST:$PORT/search?source=$SOURCE&dateStart=$DATE_START&dateEnd=$DATE_END&offset=$OFFSET&limit=$LIMIT
+    ```
+    where
+    - `$HOST`: `collector` instance's host (e.g. `collector`),
+    - `$PORT`: `collector` instance's port (e.g. `4029`),
+    - `$SOURCE`, required: `observable` instance name,
+    - `$DATE_START`, required: 
+    date time string (in [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)
+     from which obtain records (e.g. `2017-01-01T23:59:59`),
+    - `$DATE_END`, required: 
+    date time string (in [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)) 
+    to which obtain records (e.g. `2018-12-31T23:59:59`),
+    - `$OFFSET`, optional: records count to skip (e.g. `0`),
+    - `$LIMIT`, optional: max records count to return (e. g. `100`),
+    
+    **response**: `application/json`
+    ```
+    {
+        "data": {
+            "diff": {...,
+                     $FILE_PATH: {"size": $FILE_SIZE,
+                                  "type": $MODIFICATION_TYPE},
+                    ...},
+            "source": $INSTANCE_NAME
+        },
+        "offset": $OFFSET,
+        "count": $COUNT
+    }
+    ```
+    where
+    - `$FILE_PATH`: modified file absolute path 
+    (e.g. `"/opt/observable/observable.log"`),
+    - `$FILE_SIZE`: modified file size in bytes 
+    (e.g. `24043`),
+    - `$MODIFICATION_TYPE`: file modification type 
+    (possible values: `created`, `deleted`, `modified`),
+    - `$INSTANCE_NAME`: `observable` instance name,
+    - `$OFFSET`: offset from query,
+    - `$COUNT`: total records count for given query.
+
 
 ## Requirements
 - `Docker` ([installation guide](https://docs.docker.com/engine/installation/))
