@@ -15,7 +15,7 @@ scans requested directories and notifies subscribers in case of change,
     http://$HOST:$PORT/subscribe?directory=$DIRECTORY&subscriber=$SUBSCRIBER
     ```
     where
-    - `$HOST`: `observable` instance's host (e.g. `observable`),
+    - `$HOST`: `observable` instance's host (e.g. `localhost`),
     - `$PORT`: `observable` instance's port (e.g. `4092`),
     - `$DIRECTORY`: directory path for `observable` instance to scan 
     (e.g. `.` for current `observable` package directory),
@@ -38,7 +38,7 @@ scans requested directories and notifies subscribers in case of change,
     http://$HOST:$PORT/collect
     ```
     where
-    - `$HOST`: `collector` instance's host (e.g. `collector`),
+    - `$HOST`: `collector` instance's host (e.g. `localhost`),
     - `$PORT`: `collector` instance's port (e.g. `4029`),
     
     **body**: `application/json`
@@ -69,7 +69,7 @@ scans requested directories and notifies subscribers in case of change,
     http://$HOST:$PORT/search?source=$SOURCE&dateStart=$DATE_START&dateEnd=$DATE_END&offset=$OFFSET&limit=$LIMIT
     ```
     where
-    - `$HOST`: `collector` instance's host (e.g. `collector`),
+    - `$HOST`: `collector` instance's host (e.g. `localhost`),
     - `$PORT`: `collector` instance's port (e.g. `4029`),
     - `$SOURCE`, required: `observable` instance name,
     - `$DATE_START`, required: 
