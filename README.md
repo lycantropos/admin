@@ -89,7 +89,8 @@ scans requested directories and notifies subscribers in case of change,
                      $FILE_PATH: {"size": $FILE_SIZE,
                                   "type": $MODIFICATION_TYPE},
                     ...},
-            "source": $INSTANCE_NAME
+            "source": $INSTANCE_NAME,
+            "timestamp": $TIMESTAMP
         },
         "offset": $OFFSET,
         "count": $COUNT
@@ -102,9 +103,12 @@ scans requested directories and notifies subscribers in case of change,
     (e.g. `24043`),
     - `$MODIFICATION_TYPE`: file modification type 
     (possible values: `created`, `deleted`, `modified`),
-    - `$INSTANCE_NAME`: `observable` instance name,
-    - `$OFFSET`: offset from query,
-    - `$COUNT`: total records count for given query.
+    - `$INSTANCE_NAME`: `observable` instance name 
+    (e.g. `observable`),
+    - `$TIMESTAMP`: record's [`Unix` timestamp](https://en.wikipedia.org/wiki/Unix_time) 
+    (e.g. `1504758839`),
+    - `$OFFSET`: offset from query (e.g. `0`),
+    - `$COUNT`: total records count for given query (e.g. `200`).
 
 
 ## Requirements
