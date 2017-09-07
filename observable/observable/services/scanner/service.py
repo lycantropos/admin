@@ -74,7 +74,7 @@ def notify(done_future: Future,
     if not diff:
         return
     message = {'diff': diff,
-               'name': name}
+               'source': name}
     loop.run_until_complete(notifier.run(subscribers=subscribers,
                                          message=message,
                                          session=session))
