@@ -4,7 +4,6 @@ from functools import partial
 
 import pymongo
 from aiohttp.web import Application
-from pymongo.collection import Collection
 
 from .handlers import (collect,
                        search)
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_app(*,
-               collection: Collection,
+               collection: pymongo.collection.Collection,
                loop: AbstractEventLoop) -> Application:
     app = Application(logger=logger,
                       loop=loop,
