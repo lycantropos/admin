@@ -6,7 +6,8 @@ from typing import (Callable,
 from aiohttp.web import (Application,
                          Request,
                          Response)
-from aiohttp.web_exceptions import HTTPBadRequest
+
+from collector.utils import bad_request_json
 
 HandlerType = Callable[[Request], Coroutine]
 
@@ -19,6 +20,8 @@ async def middleware_factory(app: Application,
         except Exception:
             logging.exception('')
             err_msg = traceback.format_exc()
-            return HTTPBadRequest(body=err_msg)
+            body = {'status': 'error',
+                    'reason': err_msg}
+            return bad_request_json(body=body)
 
     return middleware_handler

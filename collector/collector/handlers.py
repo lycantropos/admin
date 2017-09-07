@@ -1,8 +1,6 @@
-import json
 from datetime import datetime
 
 import pymongo
-from aiohttp.web_exceptions import HTTPBadRequest
 from aiohttp.web_request import Request
 from aiohttp.web_response import (Response,
                                   json_response)
@@ -10,6 +8,7 @@ from aiohttp.web_response import (Response,
 from collector.services.persistence import (find,
                                             save,
                                             documents)
+from collector.utils import bad_request_json
 
 
 async def collect(request: Request,
@@ -23,8 +22,7 @@ async def collect(request: Request,
     if not request_json:
         body = {'status': 'error',
                 'reason': 'invalid JSON.'}
-        return HTTPBadRequest(body=json.dumps(body),
-                              content_type='application/json')
+        return bad_request_json(body=body)
 
     return json_response({'status': 'OK'})
 
