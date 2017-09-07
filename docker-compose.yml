@@ -10,6 +10,7 @@ services:
       - Collector.Name=collector
       - Collector.Host=collector
       - Collector.Port=4029
+      - Collector.Mongo.URI=mongodb://persistence/collector
     command:
       - run
     ports:
@@ -42,3 +43,6 @@ services:
       - run
     ports:
       - 4093:4093
+
+  persistence:
+    image: mongo
