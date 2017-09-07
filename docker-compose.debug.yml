@@ -10,6 +10,7 @@ services:
       - Collector.Name=collector
       - Collector.Host=collector
       - Collector.Port=4029
+      - Collector.Mongo.URI=mongodb://persistence/collector
     command:
       - --verbose
       - run
@@ -53,3 +54,6 @@ services:
       - 4093:4093
     extra_hosts:
       - "dockerhost:$DOCKERHOST"  # for debugging
+
+  persistence:
+    image: mongo

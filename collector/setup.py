@@ -10,4 +10,5 @@ setup(name=PACKAGE_NAME,
       author_email='azatibrakov@gmail.com',
       install_requires=[
           'aiohttp>=2.2.5',  # asynchronous HTTP
+          'pymongo>=3.5.1',
       ])
