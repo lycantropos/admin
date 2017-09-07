@@ -6,10 +6,13 @@ from asyncio import (get_event_loop,
                      ensure_future,
                      gather)
 from functools import partial
-from typing import List, Tuple, Dict
+from typing import (Dict,
+                    Tuple,
+                    List)
 from urllib import parse
 
 import click
+import pymongo
 from aiohttp import ClientSession
 from aiohttp.web import run_app
 
@@ -32,8 +35,11 @@ def main(ctx: click.Context,
 
     host = os.environ['Collector.Host']
     port = int(os.environ['Collector.Port'])
+    db_uri = os.getenv('Collector.Mongo.URI')
+
     ctx.obj = {'host': host,
-               'port': port}
+               'port': port,
+               'db_uri': db_uri}
 
 
 def set_logging(
@@ -86,6 +92,7 @@ def run(ctx: click.Context,
         urls: List[str]) -> None:
     host = ctx.obj['host']
     port = ctx.obj['port']
+    db_uri = ctx.obj['db_uri']
     channels = dict(map(split_query_params, urls))
 
     loop = get_event_loop()
@@ -106,7 +113,12 @@ def run(ctx: click.Context,
              for channel, query_params in channels.items()]
     loop.run_until_complete(gather(*tasks))
 
-    app = create_app(loop)
+    collection_name = 'collected'
+    session = pymongo.MongoClient(db_uri)
+    database = session.get_database()
+    collection = database.get_collection(collection_name)
+    app = create_app(collection=collection,
+                     loop=loop)
     run_app(app,
             host=host,
             port=port,
